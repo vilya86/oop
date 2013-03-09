@@ -1,0 +1,212 @@
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
+public class TreeMap<K extends Comparable<K>, V> implements Map<K, V> {
+  
+	private class Node {
+		public K key;
+		public V value;
+		public int height = 1;
+		public Node right = null;
+		public Node left = null;
+
+		public Node(K key, V value) {
+			this.key = key;
+			this.value = value;
+		}
+	}
+
+	private Node root;
+	private int size = 0;
+
+	private int height(Node node) {
+		return node != null ? node.height : 0;
+	}
+	
+	int bfactor(Node node) {
+		return height(node.right) - height(node.left);
+	}
+
+	void fixheight(Node node) {
+		int hl = height(node.left);
+		int hr = height(node.right);
+		node.height = (hl > hr ? hl : hr) + 1;
+	}
+
+	private Node rotateright(Node p) 
+	{
+		Node q = p.left;
+		p.left = q.right;
+		q.right = p;
+		fixheight(p);
+		fixheight(q);
+		return q;
+	}
+
+	private Node rotateleft(Node q) 
+	{
+		Node p = q.right;
+		q.right = p.left;
+		p.left = q;
+		fixheight(q);
+		fixheight(p);
+		return p;
+	}
+
+	private Node balance(Node p) 
+	{
+		fixheight(p);
+		if (bfactor(p) == 2) {
+			if (bfactor(p.right) < 0)
+				p.right = rotateright(p.right);
+			return rotateleft(p);
+		}
+		if (bfactor(p) == -2) {
+			if (bfactor(p.left) > 0)
+				p.left = rotateleft(p.left);
+			return rotateright(p);
+		}
+		return p; 
+	}
+
+	private Node insert(Node p, K k, V v) 
+	{
+		if (p == null) {
+			size++;
+			return new Node(k, v);
+		}
+		int cmp = k.compareTo(p.key);
+		if (cmp == 0)
+			p.value = v;
+		else if (cmp < 1)
+			p.left = insert(p.left, k, v);
+		else
+			p.right = insert(p.right, k, v);
+		return balance(p);
+	}
+
+	private Node findmin(Node p) 
+	{
+		return p.left != null ? findmin(p.left) : p;
+	}
+
+	private Node removemin(Node p) 
+	{
+		if (p.left == null)
+			return p.right;
+		p.left = removemin(p.left);
+		return balance(p);
+	}
+
+	private Node remove(Node p, K k) 
+	{
+		if (p == null)
+			return null;
+
+		int cmp = k.compareTo(p.key);
+		if (cmp < 0)
+			p.left = remove(p.left, k);
+		else if (cmp > 0)
+			p.right = remove(p.right, k);
+		else {
+			Node q = p.left;
+			Node r = p.right;
+			p = null;
+			if (r == null)
+				return q;
+			Node min = findmin(r);
+			min.right = removemin(r);
+			min.left = q;
+			return balance(min);
+		}
+		return balance(p);
+	}
+
+	@Override
+	public int size() {
+		return size;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return root == null;
+	}
+
+	private Node search(K key, Node node) {
+		if (node == null)
+			throw new IllegalArgumentException();
+		int l = node.key.compareTo(key);
+		if (l == 0)
+			return node;
+		if (l < 0)
+			return ((search(key, node.right)));
+		else
+			return ((search(key, node.left)));
+	}
+
+	@Override
+	public V get(Object key) {
+		if (key == null)
+			throw new NullPointerException();
+		K k = (K) key;
+		return search(k, root).value;
+	}
+
+	@Override
+	public V put(K key, V value) {
+		if (key == null)
+			throw new NullPointerException();
+		root = insert(root, key, value);
+		return value;
+	}
+
+	@Override
+	public V remove(Object key) {
+		Node node = search((K) key, root);
+		if (node == null)
+			return null;
+		V result = node.value;
+		root = remove(root, (K) key);
+		size--;
+		return result;
+	}
+
+	@Override
+	public void putAll(Map<? extends K, ? extends V> m) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		root = null;
+		size = 0;
+	}
+
+	@Override
+	public Set<K> keySet() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Collection<V> values() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<K, V>> entrySet() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+	// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+	// TODO Auto-generated method stub
+		return false;
+	}
+}

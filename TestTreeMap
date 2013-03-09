@@ -1,0 +1,90 @@
+import java.util.Map;
+import junit.framework.TestCase;
+import junit.framework.Assert;
+
+public class TestTreeMap extends TestCase {
+
+  private Map<Integer, Integer> first = new TreeMap<Integer, Integer>();
+	private Map<Integer, Integer> second = new TreeMap<Integer, Integer>();
+
+	private void CheckMap(Object expected, Object actual) {
+		Assert.assertEquals(expected, actual);
+	}
+
+	public void testEmptyAtStart() {
+		Assert.assertTrue(first.isEmpty());
+	}
+	
+	public void testEmptyAfterPut() {
+		second.put(2, 3);
+		Assert.assertTrue(!second.isEmpty());
+	}
+
+	public void testPutSize() {
+		for (int i = 0; i < 6; i++) {
+			first.put(i, i);
+		}
+		CheckMap(first.size(), 6);
+	}
+	
+	public void testClear() {
+		second.put(1, 1);
+		second.put(2, 1);
+		second.put(3, 1);
+		CheckMap(second.size(), 3);
+		second.clear();
+		CheckMap(second.size(), 0);
+	}
+
+	public void testRemove() {
+		testPutSize();
+		first.remove(5);
+		first.remove(2);
+		first.remove(1);
+		first.remove(3);
+		first.put(12, 12);
+		CheckMap(first.size(), 3);
+	}
+	
+	public void testRemoveRoot (){
+		first.put(2, 3);
+		first.remove(2);
+		CheckMap(first.size(), 0);
+	}
+	
+	public void testSimpleRotaterigth () {
+		second.put(3, 5);
+		second.put(2, 7);
+		second.put(1, 8);
+		CheckMap(second.get(2), 7);
+		CheckMap(second.get(3), 5);
+		CheckMap(second.get(1), 8);
+	}
+	
+	public void testSimpleRotateleft () {
+		first.put(1, 1);
+		first.put(2, 2);
+		first.put(3, 3);
+		CheckMap(first.get(1), 1);
+		CheckMap(first.get(2), 2);
+		CheckMap(first.get(3), 3);
+	}
+	
+	public void testBigRotaterigth () {
+		second.put(3, -12);
+		second.put(1, 14);
+		second.put(2, -8);
+		CheckMap(second.get(1), 14);
+		CheckMap(second.get(3), -12);
+		CheckMap(second.get(2), -8);
+	}
+	
+	public void testBigRotateleft () {
+		second.put(1, 4);
+		second.put(3, -23);
+		second.put(2, 6);
+		CheckMap(second.get(1), 4);
+		CheckMap(second.get(2), 6);
+		CheckMap(second.get(3), -23);
+	}
+}
